@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
 import {  BrowserRouter, Route,  Switch, Redirect } from 'react-router-dom'
 import Products from './components/Products'
 import TopViewed from './components/TopViewed'
@@ -13,16 +13,21 @@ import './App.css';
 
 const App = () => {
   const [products, dispatch] = useReducer(productsReducer, [])
+  const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getProducts().then(({ products }) => {
+    getProducts()
+    .then(({ products }) => {
       const productsArray = products.map(item => ({...item, views: 0, quantity: 0}))
 	    dispatch({ type: 'POPULATE_PRODUCTS', products: productsArray })
-	  });
+    })
+    .catch((error) => setError(true))
+    setLoading(false)
   }, [])
 
   return (
-    <ProductsContext.Provider value={{ products, dispatch }}>
+    <ProductsContext.Provider value={{ products, dispatch, error, loading }}>
       <BrowserRouter>
         <Navigation />
         <div className="container container-top">
